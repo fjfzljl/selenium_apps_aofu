@@ -17,12 +17,9 @@ public class LinkTester {
     public static void main(String[] args) {
         String checkLinkText;
         String expectedUrl;
-        String expectedPageCheckType;
         String expectedPageCheckBody;
 
-
         WebDriver driver = new ChromeDriver();
-        driver.get("https://apps.ualberta.ca/");
 
         try {
 
@@ -46,6 +43,11 @@ public class LinkTester {
             checkLinkText = "Staff Services Centre";
             expectedUrl = "https://www.ualberta.ca/services/staff-service-centre/index.html";
             expectedPageCheckBody = "//h1[normalize-space()='Staff Service Centre']";
+            results.add(validateLinkInOldPage(driver, checkLinkText, expectedUrl, expectedPageCheckBody));
+
+            checkLinkText = "Information Services and Technology";
+            expectedUrl = "https://uofaprod.service-now.com/sp?id=index";
+            expectedPageCheckBody = "(//input[@placeholder='Search'])[1]";
             results.add(validateLinkInOldPage(driver, checkLinkText, expectedUrl, expectedPageCheckBody));
 
             // need login to get auth
@@ -73,27 +75,22 @@ public class LinkTester {
 
             writeResultsToCsv(results);
 
-            // close the browser
         } catch (Exception e) {
             e.printStackTrace();
         }
 
-//        driver.quit();
         driver.close();
 
     }
 
     private static LinkValidationResult validateLinkInNewPage(WebDriver driver, String linkText, String expectedUrl, String expectedPageCheckBody) {
-//    private static LinkValidationResult validateLinkInNewPage(String linkText, String expectedUrl, String expectedPageCheckBody) {
 
-//        WebDriver driver = new ChromeDriver();
         driver.get("https://apps.ualberta.ca/");
 
         WebElement link = driver.findElement(By.linkText(linkText));
 
         link.click();
 
-        // wait for a new window or tab to open
         WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(10));
         wait.until(ExpectedConditions.numberOfWindowsToBe(2));
 
@@ -117,12 +114,9 @@ public class LinkTester {
 
         driver.switchTo().window(originalWindowHandle);
 
-//        driver.quit();
-
         return result;
     }
 
-//    private static LinkValidationResult validateLinkInOldPage(WebDriver driver, String linkText, String expectedUrl, String expectedPageCheckBody) {
     private static LinkValidationResult validateLinkInOldPage(WebDriver driver, String linkText, String expectedUrl, String expectedPageCheckBody) {
 
         driver.get("https://apps.ualberta.ca/");
