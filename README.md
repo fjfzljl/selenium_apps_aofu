@@ -10,5 +10,5 @@ selenium test apps.ualberta.ca
 - TestNG
 
 ## File Structure
-- src/main/java/com/koli/LinkTester.java : main function with test Case
+- src/main/java/com/koli/LinkTester.java : main function with test case
 - link_validation_results.csv : report csv file
