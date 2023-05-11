@@ -1,6 +1,10 @@
 # selenium_apps_aofu
 selenium test apps.ualberta.ca
 
+## Support Environment
+- macOS
+- Windows
+
 ## Libraries
 - selenium-java-4.9.0
 - TestNG
