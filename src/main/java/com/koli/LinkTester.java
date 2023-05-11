@@ -5,8 +5,6 @@ import java.io.IOException;
 import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.HashMap;
-import java.util.Map;
 
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
@@ -17,6 +15,12 @@ import org.openqa.selenium.support.ui.WebDriverWait;
 
 public class LinkTester {
     public static void main(String[] args) {
+        String checkLinkText;
+        String expectedUrl;
+        String expectedPageCheckType;
+        String expectedPageCheckBody;
+
+
         WebDriver driver = new ChromeDriver();
         driver.get("https://apps.ualberta.ca/");
 
@@ -24,58 +28,65 @@ public class LinkTester {
 
             List<LinkValidationResult> results = new ArrayList<>();
 
-            Map<String, String> checkLinkTextExpectUrlOldPage = new HashMap<>();
+            checkLinkText = "Login";
+            expectedUrl = "https://login.ualberta.ca/module.php/core/loginuserpass.php?AuthState=";
+            expectedPageCheckBody = "//input[@id='username']";
+            results.add(validateLinkInOldPage(driver, checkLinkText, expectedUrl, expectedPageCheckBody));
 
+            checkLinkText = "Course Catalogue";
+            expectedUrl = "https://login.ualberta.ca/module.php/core/loginuserpass.php?AuthState=";
+            expectedPageCheckBody = "//input[@id='username']";
+            results.add(validateLinkInOldPage(driver, checkLinkText, expectedUrl, expectedPageCheckBody));
 
-            // need login to get auth
-            checkLinkTextExpectUrlOldPage.put("Login", "https://login.ualberta.ca/module.php/core/loginuserpass.php?AuthState=");
+            checkLinkText = "Student Services Centre";
+            expectedUrl = "https://www.ualberta.ca/services/student-service-centre/index.html";
+            expectedPageCheckBody = "//h1[normalize-space()='Student Service Centre']";
+            results.add(validateLinkInOldPage(driver, checkLinkText, expectedUrl, expectedPageCheckBody));
 
-            checkLinkTextExpectUrlOldPage.put("Course Catalogue", "https://login.ualberta.ca/module.php/core/loginuserpass.php?AuthState=");
-
-            checkLinkTextExpectUrlOldPage.put("Student Services Centre", "https://www.ualberta.ca/services/student-service-centre/index.html");
-            checkLinkTextExpectUrlOldPage.put("Staff Services Centre", "https://www.ualberta.ca/services/staff-service-centre/index.html");
-
-
-            for (Map.Entry<String, String> entry : checkLinkTextExpectUrlOldPage.entrySet()) {
-                String checkLinkText = entry.getKey();
-                String expectedUrl = entry.getValue();
-                results.add(validateLinkInOldPage(driver, checkLinkText, expectedUrl));
-//                results.add(validateLinkInOldPage(checkLinkText, expectedUrl));
-            }
-
-            driver.quit();
-
-            Map<String, String> checkLinkTextExpectUrlNewPage = new HashMap<>();
+            checkLinkText = "Staff Services Centre";
+            expectedUrl = "https://www.ualberta.ca/services/staff-service-centre/index.html";
+            expectedPageCheckBody = "//h1[normalize-space()='Staff Service Centre']";
+            results.add(validateLinkInOldPage(driver, checkLinkText, expectedUrl, expectedPageCheckBody));
 
             // need login to get auth
-            checkLinkTextExpectUrlNewPage.put("eClass", "login.ualberta.ca");
-            checkLinkTextExpectUrlNewPage.put("University Gmail", "login.ualberta.ca");
+            checkLinkText = "eClass";
+            expectedUrl = "https://login.ualberta.ca/module.php/core/loginuserpass.php?AuthState=";
+            expectedPageCheckBody = "//input[@id='username']";
+            results.add(validateLinkInNewPage(driver, checkLinkText, expectedUrl, expectedPageCheckBody));
 
-            checkLinkTextExpectUrlNewPage.put("Bear Tracks", "https://www.beartracks.ualberta.ca");
-            checkLinkTextExpectUrlNewPage.put("BearsDen", "https://alberta.campuslabs.ca/engage");
-            checkLinkTextExpectUrlNewPage.put("Library", "https://library.ualberta.ca");
+            // need login to get auth
+            checkLinkText = "University Gmail";
+            expectedUrl = "https://login.ualberta.ca/module.php/core/loginuserpass.php?AuthState=";
+            expectedPageCheckBody = "//input[@id='username']";
+            results.add(validateLinkInNewPage(driver, checkLinkText, expectedUrl, expectedPageCheckBody));
 
 
-            for (Map.Entry<String, String> entry : checkLinkTextExpectUrlNewPage.entrySet()) {
-                String checkLinkText = entry.getKey();
-                String expectedUrl = entry.getValue();
-//                results.add(validateLinkInNewPage(driver, checkLinkText, expectedUrl));
-                results.add(validateLinkInNewPage(checkLinkText, expectedUrl));
-            }
+            checkLinkText = "Bear Tracks";
+            expectedUrl = "https://www.beartracks.ualberta.ca";
+            expectedPageCheckBody = "//a[@title='Bear Tracks']";
+            results.add(validateLinkInNewPage(driver, checkLinkText, expectedUrl, expectedPageCheckBody));
+
+            checkLinkText = "Library";
+            expectedUrl = "https://library.ualberta.ca";
+            expectedPageCheckBody = "//a[normalize-space()='Find a Person']";
+            results.add(validateLinkInNewPage(driver, checkLinkText, expectedUrl, expectedPageCheckBody));
 
             writeResultsToCsv(results);
 
             // close the browser
-        } catch (Exception e){
+        } catch (Exception e) {
             e.printStackTrace();
         }
-        driver.quit();
+
+//        driver.quit();
+        driver.close();
+
     }
 
-//    private static LinkValidationResult validateLinkInNewPage(WebDriver driver, String linkText, String expectedUrl) {
-    private static LinkValidationResult validateLinkInNewPage(String linkText, String expectedUrl) {
+    private static LinkValidationResult validateLinkInNewPage(WebDriver driver, String linkText, String expectedUrl, String expectedPageCheckBody) {
+//    private static LinkValidationResult validateLinkInNewPage(String linkText, String expectedUrl, String expectedPageCheckBody) {
 
-        WebDriver driver = new ChromeDriver();
+//        WebDriver driver = new ChromeDriver();
         driver.get("https://apps.ualberta.ca/");
 
         WebElement link = driver.findElement(By.linkText(linkText));
@@ -95,22 +106,24 @@ public class LinkTester {
             }
         }
 
-        wait.until(ExpectedConditions.urlContains(expectedUrl));
+//        wait.until(ExpectedConditions.urlContains(expectedUrl));
+        wait.until(ExpectedConditions.visibilityOfElementLocated(By.xpath(expectedPageCheckBody)));
 
         String actualUrl = driver.getCurrentUrl();
 
         LinkValidationResult result = new LinkValidationResult(linkText, expectedUrl, actualUrl);
 
-//        driver.close();
+        driver.close();
 
         driver.switchTo().window(originalWindowHandle);
 
-        driver.quit();
+//        driver.quit();
 
         return result;
     }
 
-    private static LinkValidationResult validateLinkInOldPage(WebDriver driver, String linkText, String expectedUrl) {
+//    private static LinkValidationResult validateLinkInOldPage(WebDriver driver, String linkText, String expectedUrl, String expectedPageCheckBody) {
+    private static LinkValidationResult validateLinkInOldPage(WebDriver driver, String linkText, String expectedUrl, String expectedPageCheckBody) {
 
         driver.get("https://apps.ualberta.ca/");
         WebElement link = driver.findElement(By.linkText(linkText));
@@ -119,7 +132,7 @@ public class LinkTester {
 
         WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(10));
 
-        wait.until(ExpectedConditions.urlContains(expectedUrl));
+        wait.until(ExpectedConditions.visibilityOfElementLocated(By.xpath(expectedPageCheckBody)));
 
         String actualUrl = driver.getCurrentUrl();
 
@@ -147,6 +160,8 @@ public class LinkTester {
         }
     }
 }
+
+
 
 class LinkValidationResult {
     private final String linkText;
